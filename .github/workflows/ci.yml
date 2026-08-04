@@ -20,11 +20,13 @@ jobs:
 
       - name: Set up vcpkg
         uses: lukka/run-vcpkg@v11
+        with:
+          vcpkgGitCommitId: 43c031bb61de2471c178fca57bc5a057b1b9eb73
 
       - name: Configure
         run: >
           cmake --preset release
-          -DCMAKE_TOOLCHAIN_FILE=$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake
+          -DCMAKE_TOOLCHAIN_FILE=$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake
 
       - name: Build
         run: cmake --build --preset release
@@ -46,11 +48,13 @@ jobs:
 
       - name: Set up vcpkg
         uses: lukka/run-vcpkg@v11
+        with:
+          vcpkgGitCommitId: 43c031bb61de2471c178fca57bc5a057b1b9eb73
 
       - name: Configure
         run: >
           cmake --preset coverage
-          -DCMAKE_TOOLCHAIN_FILE=$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake
+          -DCMAKE_TOOLCHAIN_FILE=$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake
 
       - name: Build
         run: cmake --build --preset coverage
