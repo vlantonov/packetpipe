@@ -61,9 +61,7 @@ void FlowTable::process(const ParsedPacket& pkt) {
         // New flow
         if (static_cast<int>(flows_.size()) >= cfg_.max_flows) {
             metrics_.packets_dropped().Increment();
-            // Log warn only once per 1000 drops to avoid log flood
-            static int drop_count = 0;
-            if (++drop_count % 1000 == 1) {
+            if (++drop_count_ % 1000 == 1) {
                 spdlog::warn("[flowtable] max_flows limit reached ({}) – dropping new flows",
                              cfg_.max_flows);
             }

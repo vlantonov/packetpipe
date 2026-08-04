@@ -2,14 +2,23 @@
 
 ## Active Workstream
 - Scope: New C++20 flow-event pipeline project (pcap/live capture -> Avro -> Kafka -> Prometheus metrics -> compose demo stack)
-- Current stage: Implementation complete; pending QA validation
+- Current stage: QA fix pass complete; pending QA re-run
 
 ## Stage Progress
 - Requirements Analyst: Complete (SRS drafted in `docs/requirements/srs.md`)
 - System Architect: Complete (design doc in `docs/design/architecture.md`)
-- Cpp Developer: Complete (project scaffold, source, tests, demo stack, CI)
-- QA Engineer: Not started
+- Cpp Developer: Complete — fix pass applied (2026-08-04)
+- QA Engineer: Pending re-run
 - Release Engineer: Not started
+
+## Cpp Developer Fix Pass (2026-08-04)
+- CI: added `libcap-dev` to apt-get install; added coverage job with gcovr (fails <70% line coverage)
+- FR-SER-4: implemented actual retry buffering in `AvroKafkaSink`; `KafkaProducer::produce()` now returns bool; events are buffered in `retry_buf_` (capped at `sr_buffer_size_`) on local produce failure
+- packets_dropped undercount: `PcapFileSource` and `LiveCaptureSource` now increment `packetpipe_packets_dropped_total` when `PacketDecoder::decode()` returns nullopt
+- Coverage preset (`--preset coverage`) added to CMakePresets.json
+- docker-compose.yml: removed deprecated `version` field
+- README: added `libcap-dev` prerequisite
+- FlowTable: replaced `static int drop_count` with instance member `drop_count_`
 
 ## Blockers / Open Questions
 - OQ-1..OQ-7 resolved in architecture.md section 1

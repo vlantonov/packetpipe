@@ -15,6 +15,7 @@ PacketPipe is a C++20 flow telemetry producer:
 - Ninja
 - Docker + Docker Compose
 - vcpkg (recommended for dependencies)
+- `libcap-dev` (Linux only; required for live capture capability checks)
 
 ## Build
 

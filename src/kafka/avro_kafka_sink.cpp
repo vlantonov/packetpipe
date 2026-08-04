@@ -30,14 +30,15 @@ void AvroKafkaSink::flush(std::chrono::milliseconds timeout) {
     producer_.flush(static_cast<int>(timeout.count()));
 }
 
-void AvroKafkaSink::attempt_produce(const FlowEvent& evt) {
+bool AvroKafkaSink::attempt_produce(const FlowEvent& evt) {
     try {
         const auto payload = serializer_.serialize(evt);
         const std::string key = AvroSerializer::flow_id(evt.state.key);
-        producer_.produce(key, payload);
+        return producer_.produce(key, payload);
     } catch (const AvroSerializationError& ex) {
         metrics_.avro_serialization_errors().Increment();
         spdlog::warn("[avro-kafka] serialization error: {}", ex.what());
+        return true; // not retriable
     }
 }
 
@@ -51,7 +52,9 @@ void AvroKafkaSink::sink_thread_func(std::stop_token stop) {
             try {
                 const auto payload = serializer_.serialize(evt);
                 const std::string key = AvroSerializer::flow_id(evt.state.key);
-                producer_.produce(key, payload);
+                if (!producer_.produce(key, payload)) {
+                    break; // still failing – leave in buffer and retry next iteration
+                }
                 metrics_.schema_registry_retries().Increment();
                 retry_buf_.pop_front();
             } catch (const AvroSerializationError&) {
@@ -63,7 +66,14 @@ void AvroKafkaSink::sink_thread_func(std::stop_token stop) {
         // Consume from queue
         auto maybe_evt = queue_->pop_wait(std::chrono::milliseconds(10));
         if (maybe_evt) {
-            attempt_produce(*maybe_evt);
+            if (!attempt_produce(*maybe_evt)) {
+                if (static_cast<int>(retry_buf_.size()) < sr_buffer_size_) {
+                    retry_buf_.push_back(std::move(*maybe_evt));
+                } else {
+                    metrics_.kafka_delivery_errors().Increment();
+                    spdlog::warn("[avro-kafka] retry buffer full – dropping event");
+                }
+            }
         }
 
         producer_.poll(0);

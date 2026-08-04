@@ -28,7 +28,7 @@ public:
 
 private:
     void sink_thread_func(std::stop_token stop);
-    void attempt_produce(const FlowEvent& evt);
+    bool attempt_produce(const FlowEvent& evt);
 
     AvroSerializer&                    serializer_;
     KafkaProducer&                     producer_;

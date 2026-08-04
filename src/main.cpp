@@ -99,9 +99,9 @@ int main(int argc, char* argv[]) {
         // ── 7. Packet source ─────────────────────────────────────────────────
         std::unique_ptr<IPacketSource> source;
         if (!cfg.pcap_file.empty()) {
-            source = std::make_unique<PcapFileSource>(cfg.pcap_file, cfg.bpf_filter);
+            source = std::make_unique<PcapFileSource>(cfg.pcap_file, cfg.bpf_filter, &metrics);
         } else {
-            source = std::make_unique<LiveCaptureSource>(cfg.iface, cfg.bpf_filter);
+            source = std::make_unique<LiveCaptureSource>(cfg.iface, cfg.bpf_filter, &metrics);
         }
         g_source_ptr = source.get();
         spdlog::info("Capturing from {}", source->description());

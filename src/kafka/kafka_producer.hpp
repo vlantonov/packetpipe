@@ -22,7 +22,8 @@ public:
     ~KafkaProducer();
 
     /// Enqueue a message for async delivery.
-    void produce(const std::string& key, const std::vector<uint8_t>& payload);
+    /// @return true if the message was locally enqueued; false on a local producer error.
+    bool produce(const std::string& key, const std::vector<uint8_t>& payload);
 
     /// Poll for delivery reports (must be called frequently from the sink thread).
     void poll(int timeout_ms = 0);

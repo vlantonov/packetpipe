@@ -53,7 +53,7 @@ KafkaProducer::KafkaProducer(const AppConfig& cfg, IMetricsRegistry& metrics)
 
 KafkaProducer::~KafkaProducer() = default;
 
-void KafkaProducer::produce(const std::string& key, const std::vector<uint8_t>& payload) {
+bool KafkaProducer::produce(const std::string& key, const std::vector<uint8_t>& payload) {
     RdKafka::ErrorCode err = producer_->produce(
         topic_name_,
         RdKafka::Topic::PARTITION_UA,
@@ -65,9 +65,10 @@ void KafkaProducer::produce(const std::string& key, const std::vector<uint8_t>& 
     if (err != RdKafka::ERR_NO_ERROR) {
         spdlog::warn("[kafka] produce error: {}", RdKafka::err2str(err));
         metrics_.kafka_delivery_errors().Increment();
-    } else {
-        metrics_.kafka_messages_produced().Increment();
+        return false;
     }
+    metrics_.kafka_messages_produced().Increment();
+    return true;
 }
 
 void KafkaProducer::poll(int timeout_ms) {

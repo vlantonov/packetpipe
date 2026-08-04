@@ -46,6 +46,7 @@ private:
     int64_t last_heartbeat_us_{0};
     int64_t idle_timeout_us_{0};
     int64_t stats_interval_us_{0};
+    int     drop_count_{0};
 };
 
 } // namespace packetpipe

@@ -1,5 +1,6 @@
 #include "pcap_file_source.hpp"
 #include "packet_decoder.hpp"
+#include "metrics/imetrics_registry.hpp"
 #include <pcap/pcap.h>
 #include <stdexcept>
 #include <cstring>
@@ -10,18 +11,25 @@ namespace {
 
 struct CallbackCtx {
     std::function<void(const ParsedPacket&)>* callback;
+    IMetricsRegistry* metrics;
 };
 
 void pcap_handler(u_char* user, const struct pcap_pkthdr* hdr, const u_char* bytes) {
     auto* ctx = reinterpret_cast<CallbackCtx*>(user);
     auto pkt = PacketDecoder::decode(bytes, hdr->caplen, hdr->ts);
-    if (pkt) (*ctx->callback)(*pkt);
+    if (pkt) {
+        (*ctx->callback)(*pkt);
+    } else if (ctx->metrics) {
+        ctx->metrics->packets_dropped().Increment();
+    }
 }
 
 } // namespace
 
-PcapFileSource::PcapFileSource(const std::string& path, const std::string& bpf_filter)
-    : path_(path), bpf_filter_(bpf_filter) {}
+PcapFileSource::PcapFileSource(const std::string& path,
+                               const std::string& bpf_filter,
+                               IMetricsRegistry* metrics)
+    : path_(path), bpf_filter_(bpf_filter), metrics_(metrics) {}
 
 PcapFileSource::~PcapFileSource() {
     if (handle_) { pcap_close(handle_); handle_ = nullptr; }
@@ -48,7 +56,7 @@ void PcapFileSource::run(std::function<void(const ParsedPacket&)> callback) {
         pcap_freecode(&fp);
     }
 
-    CallbackCtx ctx{&callback};
+    CallbackCtx ctx{&callback, metrics_};
     pcap_loop(handle_, 0, pcap_handler, reinterpret_cast<u_char*>(&ctx));
     pcap_close(handle_);
     handle_ = nullptr;

@@ -13,7 +13,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install build tools
-        run: sudo apt-get update && sudo apt-get install -y ninja-build pkg-config
+        run: sudo apt-get update && sudo apt-get install -y ninja-build pkg-config libcap-dev
 
       - name: Set up CMake
         uses: lukka/get-cmake@latest
@@ -33,3 +33,40 @@ jobs:
 
       - name: Test
         run: ctest --preset release
+
+  coverage:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install build tools
+        run: sudo apt-get update && sudo apt-get install -y ninja-build pkg-config libcap-dev gcovr
+
+      - name: Set up CMake
+        uses: lukka/get-cmake@latest
+
+      - name: Set up vcpkg
+        uses: lukka/run-vcpkg@v11
+        with:
+          vcpkgGitCommitId: 3f73a2f92d8f20f46f8227a2d80f35fd9db8b02e
+
+      - name: Configure
+        run: >
+          cmake --preset coverage
+          -DCMAKE_TOOLCHAIN_FILE=$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake
+
+      - name: Build
+        run: cmake --build --preset coverage
+
+      - name: Test
+        run: ctest --preset coverage
+
+      - name: Coverage report
+        run: >
+          gcovr --root . --filter src/
+          --exclude-unreachable-branches
+          --fail-under-line 70
+          --txt
+          -j $(nproc)
+          build/coverage

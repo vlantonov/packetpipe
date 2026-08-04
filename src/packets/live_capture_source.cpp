@@ -1,5 +1,6 @@
 #include "live_capture_source.hpp"
 #include "packet_decoder.hpp"
+#include "metrics/imetrics_registry.hpp"
 #include <pcap/pcap.h>
 #include <sys/capability.h>
 #include <stdexcept>
@@ -25,18 +26,25 @@ bool has_cap_net_raw() noexcept {
 
 struct CallbackCtx {
     std::function<void(const ParsedPacket&)>* callback;
+    IMetricsRegistry* metrics;
 };
 
 void pcap_handler(u_char* user, const struct pcap_pkthdr* hdr, const u_char* bytes) {
     auto* ctx = reinterpret_cast<CallbackCtx*>(user);
     auto pkt = PacketDecoder::decode(bytes, hdr->caplen, hdr->ts);
-    if (pkt) (*ctx->callback)(*pkt);
+    if (pkt) {
+        (*ctx->callback)(*pkt);
+    } else if (ctx->metrics) {
+        ctx->metrics->packets_dropped().Increment();
+    }
 }
 
 } // namespace
 
-LiveCaptureSource::LiveCaptureSource(const std::string& iface, const std::string& bpf_filter)
-    : iface_(iface), bpf_filter_(bpf_filter) {
+LiveCaptureSource::LiveCaptureSource(const std::string& iface,
+                                     const std::string& bpf_filter,
+                                     IMetricsRegistry* metrics)
+    : iface_(iface), bpf_filter_(bpf_filter), metrics_(metrics) {
     if (!has_cap_net_raw()) {
         throw std::runtime_error(
             "Live capture requires CAP_NET_RAW. Run as root or grant the capability:\n"
@@ -74,7 +82,7 @@ void LiveCaptureSource::run(std::function<void(const ParsedPacket&)> callback) {
         throw std::runtime_error("pcap_setnonblock: " + std::string(errbuf));
     }
 
-    CallbackCtx ctx{&callback};
+    CallbackCtx ctx{&callback, metrics_};
     // Use pcap_dispatch in a loop so pcap_breakloop can interrupt us
     while (true) {
         int r = pcap_dispatch(handle_, 100, pcap_handler, reinterpret_cast<u_char*>(&ctx));
