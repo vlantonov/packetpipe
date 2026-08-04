@@ -21,7 +21,7 @@ jobs:
       - name: Set up vcpkg
         uses: lukka/run-vcpkg@v11
         with:
-          vcpkgGitCommitId: 3f73a2f92d8f20f46f8227a2d80f35fd9db8b02e
+          vcpkgDirectory: ${{ runner.temp }}/vcpkg
 
       - name: Configure
         run: >
@@ -49,7 +49,7 @@ jobs:
       - name: Set up vcpkg
         uses: lukka/run-vcpkg@v11
         with:
-          vcpkgGitCommitId: 3f73a2f92d8f20f46f8227a2d80f35fd9db8b02e
+          vcpkgDirectory: ${{ runner.temp }}/vcpkg
 
       - name: Configure
         run: >
