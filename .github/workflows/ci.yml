@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install build tools
+        run: sudo apt-get update && sudo apt-get install -y ninja-build pkg-config
+
+      - name: Set up CMake
+        uses: lukka/get-cmake@latest
+
+      - name: Set up vcpkg
+        uses: lukka/run-vcpkg@v11
+        with:
+          vcpkgGitCommitId: 3f73a2f92d8f20f46f8227a2d80f35fd9db8b02e
+
+      - name: Configure
+        run: >
+          cmake --preset release
+          -DCMAKE_TOOLCHAIN_FILE=$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake
+
+      - name: Build
+        run: cmake --build --preset release
+
+      - name: Test
+        run: ctest --preset release

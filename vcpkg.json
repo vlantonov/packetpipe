@@ -1,0 +1,14 @@
+{
+  "name": "packetpipe",
+  "version-string": "0.1.0",
+  "dependencies": [
+    "avro-cpp",
+    "cpp-httplib",
+    "gtest",
+    "libpcap",
+    "librdkafka",
+    "nlohmann-json",
+    "prometheus-cpp",
+    "spdlog"
+  ]
+}

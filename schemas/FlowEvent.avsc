@@ -1,0 +1,42 @@
+{
+  "type": "record",
+  "name": "FlowEvent",
+  "namespace": "io.packetpipe",
+  "doc": "Unified flow lifecycle event. event_type discriminates Start/End/Stats.",
+  "fields": [
+    {
+      "name": "schema_version",
+      "type": "string",
+      "default": "1.0",
+      "doc": "SemVer major.minor of this schema."
+    },
+    {
+      "name": "event_type",
+      "type": {
+        "type": "enum",
+        "name": "EventType",
+        "symbols": ["FLOW_START", "FLOW_END", "FLOW_STATS"]
+      }
+    },
+    {
+      "name": "flow_id",
+      "type": "string",
+      "doc": "Canonical 5-tuple string; also used as Kafka message key."
+    },
+    { "name": "src_ip",   "type": "string" },
+    { "name": "dst_ip",   "type": "string" },
+    { "name": "src_port", "type": "int",  "doc": "ICMP: type<<8|code" },
+    { "name": "dst_port", "type": "int" },
+    { "name": "protocol", "type": "int",  "doc": "IPPROTO_* value" },
+    { "name": "start_timestamp_us",  "type": "long" },
+    { "name": "event_timestamp_us",  "type": "long" },
+    { "name": "packet_count",        "type": "long" },
+    { "name": "byte_count",          "type": "long" },
+    {
+      "name": "expire_reason",
+      "type": ["null", "string"],
+      "default": null,
+      "doc": "Non-null only for FLOW_END. Values: idle_timeout | tcp_teardown"
+    }
+  ]
+}
