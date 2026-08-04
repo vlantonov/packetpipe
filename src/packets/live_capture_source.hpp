@@ -1,5 +1,6 @@
 #pragma once
 #include "ipacket_source.hpp"
+#include <pcap/pcap.h>
 #include <string>
 
 namespace packetpipe {
@@ -24,7 +25,7 @@ private:
     std::string iface_;
     std::string bpf_filter_;
     IMetricsRegistry* metrics_{nullptr};
-    struct pcap* handle_{nullptr};
+    pcap_t* handle_{nullptr};
 };
 
 } // namespace packetpipe

@@ -1,7 +1,9 @@
 #pragma once
 #include "schema_registry_client.hpp"
 #include "events/flow_event.hpp"
+#include <fmt/format.h>
 #include <avro/Compiler.hh>
+#include <avro/Specific.hh>
 #include <avro/ValidSchema.hh>
 #include <stdexcept>
 #include <string>

@@ -1,5 +1,6 @@
 #include "avro/avro_serializer.hpp"
 #include "avro/schema_registry_client.hpp"
+#include <fmt/format.h>
 #include <avro/Decoder.hh>
 #include <avro/Generic.hh>
 #include <avro/Stream.hh>
