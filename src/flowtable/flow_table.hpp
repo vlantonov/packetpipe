@@ -1,4 +1,5 @@
 #pragma once
+#include "config/app_config.hpp"
 #include "events/flow_event.hpp"
 #include "metrics/imetrics_registry.hpp"
 #include "packets/parsed_packet.hpp"
@@ -7,8 +8,6 @@
 #include <unordered_map>
 
 namespace packetpipe {
-
-struct AppConfig;
 
 /// Maintains the in-memory flow table. Thread-safe between the capture thread
 /// (process) and the timer thread (timer_sweep / drain_all) via an internal mutex.

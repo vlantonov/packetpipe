@@ -1,6 +1,7 @@
 #include "events/flow_key.hpp"
 #include <gtest/gtest.h>
 #include <cstring>
+#include <netinet/in.h>
 
 using namespace packetpipe;
 

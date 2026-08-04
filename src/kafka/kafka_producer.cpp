@@ -7,9 +7,9 @@
 namespace packetpipe {
 
 KafkaProducer::KafkaProducer(const AppConfig& cfg, IMetricsRegistry& metrics)
-    : metrics_(metrics)
+    : delivery_cb_(std::make_unique<DeliveryCb>(metrics))
     , topic_name_(cfg.kafka_topic)
-    , delivery_cb_(std::make_unique<DeliveryCb>(metrics)) {
+    , metrics_(metrics) {
 
     std::string errstr;
     auto conf = std::unique_ptr<RdKafka::Conf>(
