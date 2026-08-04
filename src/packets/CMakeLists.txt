@@ -19,4 +19,8 @@ endif()
 find_library(LIBCAP cap)
 if(LIBCAP)
     target_link_libraries(packetpipe_packets PRIVATE ${LIBCAP})
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    # Under some toolchain configurations (e.g., vcpkg), find_library may miss
+    # system libcap even when it is installed. Link by name as a fallback.
+    target_link_libraries(packetpipe_packets PRIVATE cap)
 endif()

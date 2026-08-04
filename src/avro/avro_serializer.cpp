@@ -117,14 +117,14 @@ std::vector<uint8_t> AvroSerializer::serialize(const FlowEvent& evt) const {
 
         // expire_reason union ["null", "string"]
         {
-            auto& u = rec.fieldAt(kExpireReasonIdx).value<avro::GenericUnion>();
+            auto& expire_reason = rec.fieldAt(kExpireReasonIdx);
             if (evt.type == FlowEventType::End) {
-                u.selectBranch(1); // string
+                expire_reason.selectBranch(1); // string
                 const std::string reason_str =
                     (evt.reason == ExpireReason::IdleTimeout) ? "idle_timeout" : "tcp_teardown";
-                u.datum().value<std::string>() = reason_str;
+                expire_reason.value<std::string>() = reason_str;
             } else {
-                u.selectBranch(0); // null (default)
+                expire_reason.selectBranch(0); // null (default)
             }
         }
 

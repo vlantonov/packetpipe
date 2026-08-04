@@ -123,9 +123,9 @@ TEST_F(AvroRoundtripTest, RoundtripFlowEndWithExpireReason) {
     EXPECT_EQ(rec.fieldAt(1).value<avro::GenericEnum>().symbol(), "FLOW_END");
 
     // expire_reason union should be non-null
-    const auto& reason_union = rec.fieldAt(12).value<avro::GenericUnion>();
-    EXPECT_EQ(reason_union.currentBranch(), 1u); // string branch
-    EXPECT_EQ(reason_union.datum().value<std::string>(), "idle_timeout");
+    const auto& reason_field = rec.fieldAt(12);
+    EXPECT_EQ(reason_field.unionBranch(), 1u); // string branch
+    EXPECT_EQ(reason_field.value<std::string>(), "idle_timeout");
 }
 
 TEST_F(AvroRoundtripTest, RoundtripFlowStats) {
