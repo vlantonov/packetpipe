@@ -19,12 +19,30 @@ find_package(nlohmann_json CONFIG REQUIRED)
 find_package(httplib CONFIG REQUIRED)
 find_package(prometheus-cpp CONFIG REQUIRED)
 find_package(RdKafka CONFIG REQUIRED)
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(AVROCPP REQUIRED IMPORTED_TARGET avro-cpp)
+
+# vcpkg's avro-cpp config may expose only avro-cpp::avrocpp_s (static) while
+# still creating aliases that expect avro-cpp::avrocpp. Predeclare the target
+# so config-time alias creation does not fail in static-linkage environments.
+if(NOT TARGET avro-cpp::avrocpp)
+    add_library(avro-cpp::avrocpp INTERFACE IMPORTED)
+endif()
+
+find_package(avro-cpp CONFIG REQUIRED)
 
 if(NOT TARGET avro::avrocpp)
     add_library(avro::avrocpp INTERFACE IMPORTED)
-    target_link_libraries(avro::avrocpp INTERFACE PkgConfig::AVROCPP)
+
+    if(TARGET avro-cpp::avrocpp_s)
+        target_link_libraries(avro::avrocpp INTERFACE avro-cpp::avrocpp_s)
+    elseif(TARGET avro-cpp::avrocpp)
+        target_link_libraries(avro::avrocpp INTERFACE avro-cpp::avrocpp)
+    elseif(TARGET avrocpp_s)
+        target_link_libraries(avro::avrocpp INTERFACE avrocpp_s)
+    elseif(TARGET avrocpp)
+        target_link_libraries(avro::avrocpp INTERFACE avrocpp)
+    else()
+        message(FATAL_ERROR "Could not resolve Avro C++ target from avro-cpp package.")
+    endif()
 endif()
 
 add_subdirectory(src/config)
