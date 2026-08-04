@@ -6,7 +6,6 @@
 // and rejects invalid ones.  Uses pcap_open_dead so no network access is needed.
 
 TEST(BpfFilterTest, EmptyFilterCompiles) {
-    char errbuf[PCAP_ERRBUF_SIZE];
     pcap_t* handle = pcap_open_dead(DLT_EN10MB, 65535);
     ASSERT_NE(handle, nullptr);
 
@@ -19,7 +18,6 @@ TEST(BpfFilterTest, EmptyFilterCompiles) {
 }
 
 TEST(BpfFilterTest, TcpPort80FilterCompiles) {
-    char errbuf[PCAP_ERRBUF_SIZE];
     pcap_t* handle = pcap_open_dead(DLT_EN10MB, 65535);
     ASSERT_NE(handle, nullptr);
 
@@ -31,7 +29,6 @@ TEST(BpfFilterTest, TcpPort80FilterCompiles) {
 }
 
 TEST(BpfFilterTest, UdpHostFilterCompiles) {
-    char errbuf[PCAP_ERRBUF_SIZE];
     pcap_t* handle = pcap_open_dead(DLT_EN10MB, 65535);
     ASSERT_NE(handle, nullptr);
 
@@ -43,7 +40,6 @@ TEST(BpfFilterTest, UdpHostFilterCompiles) {
 }
 
 TEST(BpfFilterTest, InvalidFilterFails) {
-    char errbuf[PCAP_ERRBUF_SIZE];
     pcap_t* handle = pcap_open_dead(DLT_EN10MB, 65535);
     ASSERT_NE(handle, nullptr);
 
@@ -55,7 +51,6 @@ TEST(BpfFilterTest, InvalidFilterFails) {
 }
 
 TEST(BpfFilterTest, IcmpFilterCompiles) {
-    char errbuf[PCAP_ERRBUF_SIZE];
     pcap_t* handle = pcap_open_dead(DLT_EN10MB, 65535);
     ASSERT_NE(handle, nullptr);
 

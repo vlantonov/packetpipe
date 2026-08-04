@@ -6,6 +6,8 @@
 #include <avro/Stream.hh>
 #include <gtest/gtest.h>
 #include <cstring>
+#include <fstream>
+#include <netinet/in.h>
 #include <sstream>
 
 using namespace packetpipe;
