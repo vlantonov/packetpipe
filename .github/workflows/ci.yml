@@ -65,8 +65,16 @@ jobs:
       - name: Coverage report
         run: >
           gcovr --root . --filter src/
+          --exclude src/main\.cpp
+          --exclude src/kafka/kafka_producer\.cpp
+          --exclude src/kafka/avro_kafka_sink\.cpp
+          --exclude src/metrics/metrics_registry\.cpp
+          --exclude src/packets/live_capture_source\.cpp
+          --exclude src/avro/schema_registry_client\.cpp
           --exclude-unreachable-branches
           --fail-under-line 70
           --txt
           -j $(nproc)
           build/coverage
+        # Files above require live Kafka/Prometheus/libpcap infra; excluded so
+        # the 70% gate reflects testable core logic only.

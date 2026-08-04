@@ -7,6 +7,7 @@ add_executable(packetpipe_tests
     test_kafka_key.cpp
     test_avro_roundtrip.cpp
     test_bpf_filter.cpp
+    test_packet_decoder.cpp
 )
 
 target_link_libraries(packetpipe_tests
