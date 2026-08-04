@@ -1,5 +1,4 @@
 #include "schema_registry_client.hpp"
-#define CPPHTTPLIB_OPENSSL_SUPPORT 0
 #include <httplib.h>
 #include <nlohmann/json.hpp>
 #include <stdexcept>
