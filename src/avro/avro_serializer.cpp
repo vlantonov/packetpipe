@@ -50,27 +50,6 @@ AvroSerializer::AvroSerializer(const std::string& schema_path,
     std::ifstream ifs(schema_path);
     if (!ifs) throw std::runtime_error("Cannot open Avro schema: " + schema_path);
     avro::compileJsonSchema(ifs, schema_);
-
-    // Cache field indices for performance
-    const avro::NodePtr& root = schema_.root();
-    auto idx = [&](const std::string& name, size_t& out) {
-        if (!root->nameIndex(name, out)) {
-            throw std::runtime_error("Schema missing field: " + name);
-        }
-    };
-    idx("schema_version",    idx_schema_version_);
-    idx("event_type",        idx_event_type_);
-    idx("flow_id",           idx_flow_id_);
-    idx("src_ip",            idx_src_ip_);
-    idx("dst_ip",            idx_dst_ip_);
-    idx("src_port",          idx_src_port_);
-    idx("dst_port",          idx_dst_port_);
-    idx("protocol",          idx_protocol_);
-    idx("start_timestamp_us", idx_start_ts_);
-    idx("event_timestamp_us", idx_event_ts_);
-    idx("packet_count",      idx_packet_count_);
-    idx("byte_count",        idx_byte_count_);
-    idx("expire_reason",     idx_expire_reason_);
 }
 
 std::string AvroSerializer::flow_id(const FlowKey& key) {
@@ -90,22 +69,40 @@ std::string AvroSerializer::flow_id(const FlowKey& key) {
 
 std::vector<uint8_t> AvroSerializer::serialize(const FlowEvent& evt) const {
     try {
+        constexpr size_t kSchemaVersionIdx = 0;
+        constexpr size_t kEventTypeIdx = 1;
+        constexpr size_t kFlowIdIdx = 2;
+        constexpr size_t kSrcIpIdx = 3;
+        constexpr size_t kDstIpIdx = 4;
+        constexpr size_t kSrcPortIdx = 5;
+        constexpr size_t kDstPortIdx = 6;
+        constexpr size_t kProtocolIdx = 7;
+        constexpr size_t kStartTsIdx = 8;
+        constexpr size_t kEventTsIdx = 9;
+        constexpr size_t kPacketCountIdx = 10;
+        constexpr size_t kByteCountIdx = 11;
+        constexpr size_t kExpireReasonIdx = 12;
+
         avro::GenericDatum datum(schema_);
         auto& rec = datum.value<avro::GenericRecord>();
 
+        if (rec.fieldCount() <= kExpireReasonIdx) {
+            throw AvroSerializationError("Avro schema field layout mismatch for FlowEvent");
+        }
+
         const std::string fid = flow_id(evt.state.key);
 
-        rec.fieldAt(idx_schema_version_).value<std::string>()  = "1.0";
-        rec.fieldAt(idx_flow_id_).value<std::string>()         = fid;
-        rec.fieldAt(idx_src_ip_).value<std::string>()          = ip_array_to_string(evt.state.key.src_ip);
-        rec.fieldAt(idx_dst_ip_).value<std::string>()          = ip_array_to_string(evt.state.key.dst_ip);
-        rec.fieldAt(idx_src_port_).value<int32_t>()            = evt.state.key.src_port;
-        rec.fieldAt(idx_dst_port_).value<int32_t>()            = evt.state.key.dst_port;
-        rec.fieldAt(idx_protocol_).value<int32_t>()            = evt.state.key.protocol;
-        rec.fieldAt(idx_start_ts_).value<int64_t>()            = evt.state.start_us;
-        rec.fieldAt(idx_event_ts_).value<int64_t>()            = evt.event_timestamp_us;
-        rec.fieldAt(idx_packet_count_).value<int64_t>()        = static_cast<int64_t>(evt.state.packet_count);
-        rec.fieldAt(idx_byte_count_).value<int64_t>()          = static_cast<int64_t>(evt.state.byte_count);
+        rec.fieldAt(kSchemaVersionIdx).value<std::string>()  = "1.0";
+        rec.fieldAt(kFlowIdIdx).value<std::string>()         = fid;
+        rec.fieldAt(kSrcIpIdx).value<std::string>()          = ip_array_to_string(evt.state.key.src_ip);
+        rec.fieldAt(kDstIpIdx).value<std::string>()          = ip_array_to_string(evt.state.key.dst_ip);
+        rec.fieldAt(kSrcPortIdx).value<int32_t>()            = evt.state.key.src_port;
+        rec.fieldAt(kDstPortIdx).value<int32_t>()            = evt.state.key.dst_port;
+        rec.fieldAt(kProtocolIdx).value<int32_t>()           = evt.state.key.protocol;
+        rec.fieldAt(kStartTsIdx).value<int64_t>()            = evt.state.start_us;
+        rec.fieldAt(kEventTsIdx).value<int64_t>()            = evt.event_timestamp_us;
+        rec.fieldAt(kPacketCountIdx).value<int64_t>()        = static_cast<int64_t>(evt.state.packet_count);
+        rec.fieldAt(kByteCountIdx).value<int64_t>()          = static_cast<int64_t>(evt.state.byte_count);
 
         // event_type enum
         {
@@ -115,12 +112,12 @@ std::vector<uint8_t> AvroSerializer::serialize(const FlowEvent& evt) const {
                 case FlowEventType::End:   sym = "FLOW_END";   break;
                 case FlowEventType::Stats: sym = "FLOW_STATS"; break;
             }
-            rec.fieldAt(idx_event_type_).value<avro::GenericEnum>().set(sym);
+            rec.fieldAt(kEventTypeIdx).value<avro::GenericEnum>().set(sym);
         }
 
         // expire_reason union ["null", "string"]
         {
-            auto& u = rec.fieldAt(idx_expire_reason_).value<avro::GenericUnion>();
+            auto& u = rec.fieldAt(kExpireReasonIdx).value<avro::GenericUnion>();
             if (evt.type == FlowEventType::End) {
                 u.selectBranch(1); // string
                 const std::string reason_str =

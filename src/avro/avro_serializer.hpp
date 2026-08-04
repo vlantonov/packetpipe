@@ -33,21 +33,6 @@ public:
 private:
     avro::ValidSchema schema_;
     int32_t           schema_id_{0};
-
-    // Cached field indices – looked up once from the schema
-    size_t idx_schema_version_{0};
-    size_t idx_event_type_{0};
-    size_t idx_flow_id_{0};
-    size_t idx_src_ip_{0};
-    size_t idx_dst_ip_{0};
-    size_t idx_src_port_{0};
-    size_t idx_dst_port_{0};
-    size_t idx_protocol_{0};
-    size_t idx_start_ts_{0};
-    size_t idx_event_ts_{0};
-    size_t idx_packet_count_{0};
-    size_t idx_byte_count_{0};
-    size_t idx_expire_reason_{0};
 };
 
 } // namespace packetpipe
