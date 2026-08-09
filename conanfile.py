@@ -12,7 +12,7 @@ class PacketPipeConan(ConanFile):
         self.requires("librdkafka/2.3.0")
         self.requires("nlohmann_json/3.11.3")
         self.requires("prometheus-cpp/1.2.4")
-        self.requires("spdlog/1.13.0")
+        self.requires("spdlog/1.17.0")
 
     def build_requirements(self):
         self.test_requires("gtest/1.14.0")
