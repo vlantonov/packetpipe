@@ -1,5 +1,16 @@
 # PacketPipe SDLC Status
 
+## Maintenance Pass (2026-08-10) — Conan CI Fix Series (v0.1.3)
+- Fixed Conan package name: avro-cpp → libavrocpp/1.11.3 (1.12.x has upstream compile bug with fmt)
+- Resolved transitive fmt version conflict (spdlog/1.17.0 + libavrocpp via override then proper downgrade)
+- Removed orphaned .vcpkg gitlink; added .vcpkg/ to .gitignore
+- Upgraded librdkafka to 2.14.2; pinned CMake to ~3.31.0 (CMake 4.x removed compat <3.5)
+- Fixed libpcap CMake target discovery in tests/CMakeLists.txt (missing libpcap::libpcap branch)
+- Added fmt::fmt PUBLIC to packetpipe_avro (avro_serializer.hpp uses <fmt/format.h>)
+- Added prometheus-cpp::core PUBLIC to packetpipe_packets (imetrics_registry.hpp in public include)
+- Changed libpcap link visibility to PUBLIC in packetpipe_packets (pcap_file_source.hpp in public include)
+- SemVer impact: PATCH (build-system-only, no behavioral change)
+
 ## Maintenance Pass (2026-08-10) — Conan Migration
 - Migrated dependency provisioning from vcpkg to Conan 2 (ConanCenter)
 - All 8 runtime dependencies and GTest now declared in conanfile.py
