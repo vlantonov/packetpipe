@@ -22,13 +22,18 @@ target_link_libraries(packetpipe_tests
         GTest::gtest_main
 )
 
-find_package(pcap CONFIG QUIET)
-if(pcap_FOUND)
-    target_link_libraries(packetpipe_tests PRIVATE pcap::pcap)
+find_package(libpcap QUIET)
+if(libpcap_FOUND)
+    target_link_libraries(packetpipe_tests PRIVATE libpcap::libpcap)
 else()
-    find_package(PkgConfig REQUIRED)
-    pkg_check_modules(LIBPCAP REQUIRED IMPORTED_TARGET libpcap)
-    target_link_libraries(packetpipe_tests PRIVATE PkgConfig::LIBPCAP)
+    find_package(pcap CONFIG QUIET)
+    if(pcap_FOUND)
+        target_link_libraries(packetpipe_tests PRIVATE pcap::pcap)
+    else()
+        find_package(PkgConfig REQUIRED)
+        pkg_check_modules(LIBPCAP REQUIRED IMPORTED_TARGET libpcap)
+        target_link_libraries(packetpipe_tests PRIVATE PkgConfig::LIBPCAP)
+    endif()
 endif()
 
 target_compile_definitions(packetpipe_tests PRIVATE
