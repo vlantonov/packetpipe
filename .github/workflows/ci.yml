@@ -18,15 +18,19 @@ jobs:
       - name: Set up CMake
         uses: lukka/get-cmake@latest
 
-      - name: Set up vcpkg
-        uses: lukka/run-vcpkg@v11
-        with:
-          vcpkgGitCommitId: 43c031bb61de2471c178fca57bc5a057b1b9eb73
+      - name: Install Conan
+        run: pip install conan
+
+      - name: Detect Conan profile
+        run: conan profile detect --force
+
+      - name: Install dependencies
+        run: >
+          conan install . --output-folder=build/release --build=missing
+          -s build_type=Release
 
       - name: Configure
-        run: >
-          cmake --preset release
-          -DCMAKE_TOOLCHAIN_FILE=$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake
+        run: cmake --preset release
 
       - name: Build
         run: cmake --build --preset release
@@ -46,15 +50,19 @@ jobs:
       - name: Set up CMake
         uses: lukka/get-cmake@latest
 
-      - name: Set up vcpkg
-        uses: lukka/run-vcpkg@v11
-        with:
-          vcpkgGitCommitId: 43c031bb61de2471c178fca57bc5a057b1b9eb73
+      - name: Install Conan
+        run: pip install conan
+
+      - name: Detect Conan profile
+        run: conan profile detect --force
+
+      - name: Install dependencies
+        run: >
+          conan install . --output-folder=build/coverage --build=missing
+          -s build_type=Debug
 
       - name: Configure
-        run: >
-          cmake --preset coverage
-          -DCMAKE_TOOLCHAIN_FILE=$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake
+        run: cmake --preset coverage
 
       - name: Build
         run: cmake --build --preset coverage
