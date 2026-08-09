@@ -20,28 +20,17 @@ find_package(httplib CONFIG REQUIRED)
 find_package(prometheus-cpp CONFIG REQUIRED)
 find_package(RdKafka CONFIG REQUIRED)
 
-# vcpkg's avro-cpp config may expose only avro-cpp::avrocpp_s (static) while
-# still creating aliases that expect avro-cpp::avrocpp. Predeclare the target
-# so config-time alias creation does not fail in static-linkage environments.
-if(NOT TARGET avro-cpp::avrocpp)
-    add_library(avro-cpp::avrocpp INTERFACE IMPORTED)
-endif()
+find_package(avro-cpp REQUIRED)
 
-find_package(avro-cpp CONFIG REQUIRED)
-
+# Normalise Avro target name across Conan recipe versions
 if(NOT TARGET avro::avrocpp)
     add_library(avro::avrocpp INTERFACE IMPORTED)
-
-    if(TARGET avro-cpp::avrocpp_s)
-        target_link_libraries(avro::avrocpp INTERFACE avro-cpp::avrocpp_s)
-    elseif(TARGET avro-cpp::avrocpp)
+    if(TARGET avro-cpp::avrocpp)
         target_link_libraries(avro::avrocpp INTERFACE avro-cpp::avrocpp)
-    elseif(TARGET avrocpp_s)
-        target_link_libraries(avro::avrocpp INTERFACE avrocpp_s)
-    elseif(TARGET avrocpp)
-        target_link_libraries(avro::avrocpp INTERFACE avrocpp)
+    elseif(TARGET avro-cpp::avrocpp_s)
+        target_link_libraries(avro::avrocpp INTERFACE avro-cpp::avrocpp_s)
     else()
-        message(FATAL_ERROR "Could not resolve Avro C++ target from avro-cpp package.")
+        message(FATAL_ERROR "Could not resolve Avro C++ target.")
     endif()
 endif()
 
