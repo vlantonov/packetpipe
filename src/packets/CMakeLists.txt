@@ -5,14 +5,19 @@ add_library(packetpipe_packets STATIC
 )
 target_include_directories(packetpipe_packets PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/..)
 
-# Prefer vcpkg-exported pcap target; fall back to system pkg-config
-find_package(pcap CONFIG QUIET)
-if(pcap_FOUND)
-    target_link_libraries(packetpipe_packets PRIVATE pcap::pcap)
+# Try Conan (libpcap::libpcap), vcpkg (pcap::pcap), then system pkg-config
+find_package(libpcap QUIET)
+if(libpcap_FOUND)
+    target_link_libraries(packetpipe_packets PRIVATE libpcap::libpcap)
 else()
-    find_package(PkgConfig REQUIRED)
-    pkg_check_modules(LIBPCAP REQUIRED IMPORTED_TARGET libpcap)
-    target_link_libraries(packetpipe_packets PRIVATE PkgConfig::LIBPCAP)
+    find_package(pcap CONFIG QUIET)
+    if(pcap_FOUND)
+        target_link_libraries(packetpipe_packets PRIVATE pcap::pcap)
+    else()
+        find_package(PkgConfig REQUIRED)
+        pkg_check_modules(LIBPCAP REQUIRED IMPORTED_TARGET libpcap)
+        target_link_libraries(packetpipe_packets PRIVATE PkgConfig::LIBPCAP)
+    endif()
 endif()
 
 # libcap for CAP_NET_RAW check in live_capture_source.cpp
