@@ -20,12 +20,17 @@ find_package(httplib CONFIG REQUIRED)
 find_package(prometheus-cpp CONFIG REQUIRED)
 find_package(RdKafka CONFIG REQUIRED)
 
-find_package(avro-cpp REQUIRED)
+# 1.11.x recipe uses package name "libavrocpp"; 1.12.x overrides to "avro-cpp"
+find_package(libavrocpp QUIET)
+if(NOT libavrocpp_FOUND)
+    find_package(avro-cpp REQUIRED)
+endif()
 
-# Normalise Avro target name across Conan recipe versions
 if(NOT TARGET avro::avrocpp)
     add_library(avro::avrocpp INTERFACE IMPORTED)
-    if(TARGET avro-cpp::avrocpp)
+    if(TARGET libavrocpp::libavrocpp)
+        target_link_libraries(avro::avrocpp INTERFACE libavrocpp::libavrocpp)
+    elseif(TARGET avro-cpp::avrocpp)
         target_link_libraries(avro::avrocpp INTERFACE avro-cpp::avrocpp)
     elseif(TARGET avro-cpp::avrocpp_s)
         target_link_libraries(avro::avrocpp INTERFACE avro-cpp::avrocpp_s)

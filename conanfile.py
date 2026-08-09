@@ -6,8 +6,7 @@ class PacketPipeConan(ConanFile):
     generators = "CMakeDeps", "CMakeToolchain"
 
     def requirements(self):
-        self.requires("fmt/12.2.0", override=True)  # pin shared transitive dep
-        self.requires("libavrocpp/1.12.1")
+        self.requires("libavrocpp/1.11.3")
         self.requires("cpp-httplib/0.14.3")
         self.requires("libpcap/1.10.4")
         self.requires("librdkafka/2.3.0")
