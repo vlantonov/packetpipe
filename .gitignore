@@ -58,8 +58,9 @@ compile_commands.json
 *.bak
 *.swp
 
-# vcpkg
+# vcpkg (legacy; project now uses Conan)
 vcpkg_installed/
+.vcpkg/
 
 # debug information files
 *.dwo
