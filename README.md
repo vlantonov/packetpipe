@@ -14,13 +14,17 @@ PacketPipe is a C++20 flow telemetry producer:
 - C++20 compiler (GCC 13+ or Clang 17+)
 - Ninja
 - Docker + Docker Compose
-- vcpkg (recommended for dependencies)
+- Conan 2 (https://conan.io)
 - `libcap-dev` (Linux only; required for live capture capability checks)
 
 ## Build
 
 ```bash
-cmake --preset release -DCMAKE_TOOLCHAIN_FILE="$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
+# Install dependencies (first time or after dependency changes)
+conan install . --output-folder=build/release --build=missing -s build_type=Release
+
+# Configure and build
+cmake --preset release
 cmake --build --preset release
 ```
 

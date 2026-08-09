@@ -1,5 +1,13 @@
 # PacketPipe SDLC Status
 
+## Maintenance Pass (2026-08-10) — Conan Migration
+- Migrated dependency provisioning from vcpkg to Conan 2 (ConanCenter)
+- All 8 runtime dependencies and GTest now declared in conanfile.py
+- CMakePresets.json updated to reference Conan-generated toolchain per preset
+- GitHub Actions CI updated: pip-install Conan, detect profile, conan install
+- vcpkg.json removed; .vcpkg submodule reference retained only in git history
+- SemVer impact: PATCH (build-system-only, no behavioral change)
+
 ## Active Workstream
 - Scope: New C++20 flow-event pipeline project (pcap/live capture -> Avro -> Kafka -> Prometheus metrics -> compose demo stack)
 - Current stage: Maintenance stabilization complete; patch release prepared
