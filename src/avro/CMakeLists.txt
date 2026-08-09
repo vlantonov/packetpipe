@@ -7,6 +7,7 @@ target_link_libraries(packetpipe_avro
     PUBLIC
         packetpipe_events
         avro::avrocpp
+        fmt::fmt
     PRIVATE
         httplib::httplib
         nlohmann_json::nlohmann_json

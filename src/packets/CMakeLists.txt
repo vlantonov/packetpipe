@@ -4,6 +4,7 @@ add_library(packetpipe_packets STATIC
     live_capture_source.cpp
 )
 target_include_directories(packetpipe_packets PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/..)
+target_link_libraries(packetpipe_packets PUBLIC prometheus-cpp::core)
 
 # Try Conan (libpcap::libpcap), vcpkg (pcap::pcap), then system pkg-config
 find_package(libpcap QUIET)
