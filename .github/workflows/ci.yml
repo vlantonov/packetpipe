@@ -17,6 +17,8 @@ jobs:
 
       - name: Set up CMake
         uses: lukka/get-cmake@latest
+        with:
+          cmakeVersion: "~3.31.0"  # pin to 3.x; cmake 4.x removed compat <3.5
 
       - name: Install Conan
         run: pip install conan
@@ -49,6 +51,8 @@ jobs:
 
       - name: Set up CMake
         uses: lukka/get-cmake@latest
+        with:
+          cmakeVersion: "~3.31.0"  # pin to 3.x; cmake 4.x removed compat <3.5
 
       - name: Install Conan
         run: pip install conan

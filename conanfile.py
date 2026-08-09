@@ -9,7 +9,7 @@ class PacketPipeConan(ConanFile):
         self.requires("libavrocpp/1.11.3")
         self.requires("cpp-httplib/0.14.3")
         self.requires("libpcap/1.10.4")
-        self.requires("librdkafka/2.3.0")
+        self.requires("librdkafka/2.14.2")
         self.requires("nlohmann_json/3.11.3")
         self.requires("prometheus-cpp/1.2.4")
         self.requires("spdlog/1.17.0")
